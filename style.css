@@ -39,3 +39,25 @@ h4 {
     font-weight: bolder;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+.card-header {
+    font-weight: bolder;
+    color: white;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+.col-lg-4 a {
+    text-decoration: none;
+}
+.col-lg-8 a {
+    text-decoration: none;
+}
+.card:hover {
+    border-color: cyan !important;
+}
+.small-text {
+    font-style: italic;
+    font-weight: bold;
+    color: white !important;
+}
+.talk-preview {
+    padding-top: 20px;
+}
