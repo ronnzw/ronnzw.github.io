@@ -1,0 +1,133 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ron's portfolio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1 id="two-ways-to-stop-writing-docker-files">Two ways to stop writing Docker files</h1>
+<p>If l&#39;m being honest with myself, writing <code>Dockerfile</code> and <code>docker-compose.yml</code> is a pain and surely, l can&#39;t be the only one
+out there experiencing this pain. Fortunately we have two of our friends that have created solution to stop our pain.</p>
+<p>In this article l will be mainly focusing on Django, showcasing two ways to avoid creating docker files. The first and the most recommended way is using a CLI command <code>docker init</code>. The second option is to use <a href="&quot;https://cookiecutter-django.readthedocs.io/&quot;">Django cookiecutter</a>.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>Django basic knowledge</li>
+<li>Cookiecutter Django basic knowledge</li>
+<li>Git</li>
+<li>Virtual environment</li>
+<li>bash</li>
+</ul>
+<h2 id="docket-init">Docket init</h2>
+<p>If you are familiar with git you must be aware of a command called <code>git init</code> which initialises a local repository. In the same breath we have got an a similar CLI command called <code>docket init</code> which also initialises your projects. Docket init which l discovered a few days ago can help you to create project resources within your project. It creates Dockerfiles, docker compose files and well as well copied <code>.dockerignore</code>. Not only is this good news but it is a life saver, because now you are getting configurations directly from the system
+meaning you will be getting the best configurations.</p>
+<h3 id="how-to-use-it-">How to use it?</h3>
+<p>As mention before we will be using Django. <a href="&quot;https://docs.github.com/en/repositories/creating-and-managing-repositories/quickstart-for-repositories&quot;">Create</a> a repository on github and add a readme file, then clone the repository locally. It&#39;s always best practise to create a virtual environment. Create a <code>requirement.txt</code> file so that your directory structure looks as follows.</p>
+<pre><code class="lang-md">computername/clonerepository
+├── readme<span class="hljs-selector-class">.md</span>
+├── requirement<span class="hljs-selector-class">.txt</span>
+└── myvenv/
+</code></pre>
+<h4 id="installation">Installation</h4>
+<ol>
+<li>Install docker follow instruction <a href="&quot;https://docs.docker.com/get-docker/&quot;">here</a>.</li>
+<li>Open <code>requirement.txt</code> file</li>
+<li>Add <code>django</code> and save</li>
+<li>With your virtual environment active run <code>pip install -r requirement.txt</code></li>
+</ol>
+<h4 id="setup">Setup</h4>
+<p>Now that you have installed everything, ensure that all of them are properly installed. For django use <code>django-admin help</code> and for docker use <code>docker help</code>. If all of them return results that you are all set.</p>
+<ul>
+<li>Start your django project using <code>django-admin startproject myproject .</code></li>
+<li>Run <code>docket init</code></li>
+<li>You will be asked a few questions:<ul>
+<li>What application platform does your project use? (use arrows to move and select with <kbd>Enter</kbd> ) select <strong>Python</strong></li>
+<li>What version of python do you want to use? ( this is the version used in docker) at the time of writing select 3.10.10</li>
+<li>What port do you want to listen to? 8000</li>
+<li>What is the command you use to run your app? <code>python manage.py runserver</code> (if you want to use gunicorn it auto selects.)</li>
+</ul>
+</li>
+<li>Your docker files are now created.</li>
+</ul>
+<p>You see how easy it is, imagine all that time you spend creating docker files. You can go through the docker files that is has created for you.</p>
+<h4 id="view-the-files-create">View the files create</h4>
+<p>It has created four files for us: DockerFile, compose.yaml, .dockerignore and README.Docker.md . If l&#39;m honest l have never written such docker files on my own.
+Many thanks to the team at docker for implementing this.</p>
+<h5 id="dockerfile">DockerFile</h5>
+<pre><code class="lang-DockerFile"><span class="hljs-comment"># syntax=docker/dockerfile:1</span>
+
+<span class="hljs-comment"># Comments are provided throughout this file to help you get started.</span>
+<span class="hljs-comment"># If you need more help, visit the Dockerfile reference guide at</span>
+<span class="hljs-comment"># https://docs.docker.com/go/dockerfile-reference/</span>
+
+<span class="hljs-comment"># Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7</span>
+
+ARG PYTHON_VERSION=<span class="hljs-number">3.10</span>.<span class="hljs-number">10</span>
+<span class="hljs-keyword">FROM</span> python:${PYTHON_VERSION}-slim as base
+
+<span class="hljs-comment"># Prevents Python from writing pyc files.</span>
+<span class="hljs-keyword">ENV</span> PYTHONDONTWRITEBYTECODE=<span class="hljs-number">1</span>
+
+<span class="hljs-comment"># Keeps Python from buffering stdout and stderr to avoid situations where</span>
+<span class="hljs-comment"># the application crashes without emitting any logs due to buffering.</span>
+<span class="hljs-keyword">ENV</span> PYTHONUNBUFFERED=<span class="hljs-number">1</span>
+
+<span class="hljs-keyword">WORKDIR</span><span class="bash"> /app
+</span>
+<span class="hljs-comment"># Create a non-privileged user that the app will run under.</span>
+<span class="hljs-comment"># See https://docs.docker.com/go/dockerfile-user-best-practices/</span>
+ARG UID=<span class="hljs-number">10001</span>
+<span class="hljs-keyword">RUN</span><span class="bash"> adduser \
+    --disabled-password \
+    --gecos <span class="hljs-string">""</span> \
+    --home <span class="hljs-string">"/nonexistent"</span> \
+    --shell <span class="hljs-string">"/sbin/nologin"</span> \
+    --no-create-home \
+    --uid <span class="hljs-string">"<span class="hljs-variable">${UID}</span>"</span> \
+    appuser
+</span>
+<span class="hljs-comment"># Download dependencies as a separate step to take advantage of Docker's caching.</span>
+<span class="hljs-comment"># Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.</span>
+<span class="hljs-comment"># Leverage a bind mount to requirements.txt to avoid having to copy them into</span>
+<span class="hljs-comment"># into this layer.</span>
+<span class="hljs-keyword">RUN</span><span class="bash"> --mount=<span class="hljs-built_in">type</span>=cache,target=/root/.cache/pip \
+    --mount=<span class="hljs-built_in">type</span>=<span class="hljs-built_in">bind</span>,<span class="hljs-built_in">source</span>=requirements.txt,target=requirements.txt \
+    python -m pip install -r requirements.txt
+</span>
+<span class="hljs-comment"># Switch to the non-privileged user to run the application.</span>
+<span class="hljs-keyword">USER</span> appuser
+
+<span class="hljs-comment"># Copy the source code into the container.</span>
+<span class="hljs-keyword">COPY</span><span class="bash"> . .
+</span>
+<span class="hljs-comment"># Expose the port that the application listens on.</span>
+<span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">8000</span>
+
+<span class="hljs-comment"># Run the application.</span>
+<span class="hljs-keyword">CMD</span><span class="bash"> python manage.py runserver</span>
+</code></pre>
+<p>Look at that everything is in there and it also includes helpful comments. I really like it. You can also take a look at the other
+files that <code>docker init</code> has created for you. But for now let&#39;s move on to the next way.</p>
+<h2 id="cookiecutter-django">Cookiecutter Django</h2>
+<p>Cookiecutter Django is a framework for jumpstarting production-ready Django projects quickly. It supports Docker using docker-compose for development and production (using Traefik with LetsEncrypt support).</p>
+<h3 id="installation">Installation</h3>
+<ol>
+<li>First install cookiecutter <code>pip install cookiecutter</code></li>
+</ol>
+<h3 id="how-to-use-it-">How to use it?</h3>
+<p>Get cookiecutter django with this command <code>cookiecutter https://github.com/cookiecutter/cookiecutter-django</code></p>
+<p>This command will start asking use a number of questions. Since this guide is not about cookiecutter l will skip those questions.</p>
+<p><strong>NB:</strong>  <strong>Make sure the on docker question you select <em>y</em>, because by default it&#39;s set to no</strong></p>
+<p>With cookicutter it&#39;s a bit different because this is going to create more other files for django and deployment. The <code>.dockerignore</code> is in the main directory while the other a hidden. To find them follow this path:</p>
+<pre><code class="lang-md">yourcookiecutterdirectory
+├── <span class="hljs-selector-class">.dockerignore</span>
+├── compose/local/django/Dockerfile
+└── myvenv/
+</code></pre>
+<p>You will see that you only have a Dockerfile and not <code>docker-compose.yml</code> because the other settings will be in <code>start</code>, <code>entrypoint</code> and some under <code>nginx/</code> directory.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>So you see now you don&#39;t need to stress yourself thinking about docker files. I think the cookiecutter method will require more deep knowledge of both django, docker and nginx. While the docker root is more straight forward and easy to manipulate. </p>
+<p>Generally it&#39;s important to know the technology that you are using because in tech you are guaranteed that things go wrong and if you have little knowledge about it might be difficult for you to contemplate. </p>
+</body>
+</html>
